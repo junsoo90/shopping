@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CustomDao">
+	
+	<select id="idCheck" resultType="int"> 
+		SELECT COUNT(*) FROM custom
+      	WHERE cId = #{cId}
+	</select>
+	
+	<select id="login" resultType="CustomVO"> 
+		 select * from custom
+		 where cId = #{cId}
+	</select>
+	
+	<insert id="customInsert" parameterType="CustomVO">
+		insert into custom values(
+			#{cId},
+			#{cPass},
+			#{cName},
+			#{cAddCode},
+			#{cAdd},
+			#{cAddDetail},
+			#{cPhone1},
+			#{cPhone1},
+			#{cPhone3}
+		)
+	</insert>
+	
+	
+</mapper>

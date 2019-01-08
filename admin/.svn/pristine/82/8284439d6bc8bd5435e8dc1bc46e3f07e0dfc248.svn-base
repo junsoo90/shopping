@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="ProductDao">
+
+<sql id="search">
+		<choose>
+			<when test="keyField == 'all'">
+				WHERE productInfo.title like '%'||#{keyWord}||'%'
+				OR productInfo.name like '%'||#{keyWord}||'%'
+				OR productInfo.content like '%'||#{keyWord}||'%'
+				or pSeq  IN (
+             	SELECT seq from pPhoto
+             	WHERE orgfilename LIKE '%'||#{keyWord}||'%')
+			</when>
+			<when test="keyField == 'orgfilename'">
+			 WHERE pSeq  IN (
+             	SELECT seq from pPhoto
+             	WHERE orgfilename LIKE '%'||#{keyWord}||'%')
+			</when>
+			<when test="keyField == 'title'">
+				where title like '%'||#{keyWord}||'%'
+			</when>
+			<when test="keyField == 'name'">
+				where name like '%'||#{keyWord}||'%'
+			</when>
+			<when test="keyField == 'content'">
+				where content like '%'||#{keyWord}||'%'
+			</when>
+			
+		</choose>
+	</sql>
+
+
+	<select id="productList" resultType="ProductVO">
+		select * from productInfo order by pseq desc
+	</select>
+	
+	
+	<select id="boardList" parameterType="map" resultType="ProductVO">
+		SELECT * FROM
+		(SELECT A.*, ROWNUM RNUM FROM
+		(SELECT * FROM productInfo
+		<if test="keyField != '' or null">
+			<include refid="search" />
+		</if>
+		ORDER BY REF DESC,STEP ASC)A)
+		<![CDATA[
+		 where RNUM >= #{start} AND RNUM <= #{end}		
+		]]>
+		
+	</select>
+
+	<select id="boardCount" parameterType="map" resultType="Integer">
+		SELECT COUNT(*) FROM productInfo
+		<if test="keyField != '' ">
+			<include refid="search" />
+		</if>
+	</select>
+	
+	<select id="pPhotoCount" parameterType="map" resultType="Integer">
+		 SELECT COUNT(*)   
+         FROM productInfo
+         WHERE pSeq  IN (
+              SELECT pseq FROM pPhoto
+              WHERE orgfilename LIKE '%${keyWord}%')
+			
+	</select>
+
+	<insert id="productInsert" parameterType="ProductVO" >
+
+		INSERT INTO productInfo
+		VALUES(pSeq.nextval,#{pName},#{pPrice},#{pDetail},
+		0)
+
+	</insert>
+		<insert id="optionInsert" parameterType="OptionVO" >
+
+		INSERT INTO productOption
+		VALUES(#{pSeq},#{pOption},#{optionCnt}, #{optionStock}, #{optionPrice})
+
+	</insert>
+	
+	<insert id="fileInsert" parameterType="FileVO">
+		insert into pPhoto
+		values( #{pSeq}, #{orgfilename}, #{savefilename}, #{filelocation})
+	</insert>
+
+
+	<update id="stepUp" parameterType="ProductVO">
+		UPDATE productInfo SET STEP=STEP+1 
+		WHERE REF=#{ref} and STEP <![CDATA[>]]>
+		#{step}
+	</update>
+
+	<select id="getInfo" parameterType="int" resultType="ProductVO">
+		SELECT *
+		FROM productInfo WHERE pSeq=#{pSeq}
+	</select>
+	
+	<select id="filegetInfo" parameterType="int" resultType="FileVO">
+		SELECT *
+		FROM pPhoto WHERE pSEQ=#{seq}
+	</select>
+
+	<update id="addHit" parameterType="int">
+		UPDATE productInfo SET HIT=HIT+1
+		WHERE pSeq=#{seq}
+	</update>
+
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM productInfo WHERE
+		pSeq=#{seq} 
+	</delete>
+	
+	<delete id="fileDelete" parameterType="FileVO">
+		DELETE FROM pPhoto WHERE
+		pSEQ=#{seq} and savefilename = #{savefilename}
+		
+	</delete>
+
+	<select id="getMaxSeq" resultType="int">
+		select NVL(max(pSeq),0) maxnum
+		from productInfo
+	</select>
+
+
+	<update id="updateOk" parameterType="ProductVO">
+		UPDATE productInfo SET
+		title=#{title}, content=#{content}
+		WHERE
+		pSeq=#{seq}
+	</update>
+
+	<select id="getBoard" resultType="ProductVO">
+		select * from productInfo
+		order by pSeq desc
+	</select>
+	
+	<select id="optionInfo" resultType="OptionVO">
+		select * from productOption
+		where pSeq = #{pSeq}
+	</select>
+
+
+</mapper>

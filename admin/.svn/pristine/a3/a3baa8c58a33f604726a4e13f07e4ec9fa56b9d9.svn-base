@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+
+<mapper namespace="BoardDao">
+	
+	<sql id="search">
+		<choose>
+			<when test="keyField == 'all'">
+				WHERE board2.title like '%'||#{keyWord}||'%'
+				OR board2.name like '%'||#{keyWord}||'%'
+				OR board2.content like '%'||#{keyWord}||'%'
+				or seq  IN (
+             	SELECT seq from boardfile
+             	WHERE orgfilename LIKE '%'||#{keyWord}||'%')
+			</when>
+			<when test="keyField == 'orgfilename'">
+			 WHERE seq  IN (
+             	SELECT seq from boardfile
+             	WHERE orgfilename LIKE '%'||#{keyWord}||'%')
+			</when>
+			<when test="keyField == 'title'">
+				where title like '%'||#{keyWord}||'%'
+			</when>
+			<when test="keyField == 'name'">
+				where name like '%'||#{keyWord}||'%'
+			</when>
+			<when test="keyField == 'content'">
+				where content like '%'||#{keyWord}||'%'
+			</when>
+			
+		</choose>
+	</sql>
+
+	<select id="boardList" parameterType="map" resultType="BoardVO">
+		SELECT * FROM
+		(SELECT A.*, ROWNUM RNUM FROM
+		(SELECT * FROM BOARD2
+		<if test="keyField != '' or null">
+			<include refid="search" />
+		</if>
+		ORDER BY REF DESC,STEP ASC)A)
+		<![CDATA[
+		 where RNUM >= #{start} AND RNUM <= #{end}		
+		]]>
+		
+	</select>
+
+	<select id="boardCount" parameterType="map" resultType="Integer">
+		SELECT COUNT(*) FROM board2
+		<if test="keyField != '' ">
+			<include refid="search" />
+		</if>
+	</select>
+	
+	<select id="boardfileCount" parameterType="map" resultType="Integer">
+		 SELECT COUNT(*)   
+         FROM board2
+         WHERE seq  IN (
+              SELECT seq FROM boardfile
+              WHERE orgfilename LIKE '%${keyWord}%')
+			
+	</select>
+
+	<insert id="boardInsert" parameterType="BoardVO" >
+
+		INSERT INTO BOARD2
+		VALUES(seq.nextval,#{name},#{title},#{content},#{pass},
+		1,SYSDATE,#{ref},#{lev},#{step})
+
+	</insert>
+	
+	<insert id="fileInsert" parameterType="FileVO">
+		insert into boardfile
+		values( #{seq}, #{orgfilename}, #{savefilename}, #{filelocation})
+	</insert>
+
+
+	<update id="stepUp" parameterType="BoardVO">
+		UPDATE BOARD2 SET STEP=STEP+1 
+		WHERE REF=#{ref} and STEP <![CDATA[>]]>
+		#{step}
+	</update>
+
+	<select id="getInfo" parameterType="int" resultType="BoardVO">
+		SELECT *
+		FROM BOARD2 WHERE SEQ=#{seq}
+	</select>
+	
+	<select id="filegetInfo" parameterType="int" resultType="FileVO">
+		SELECT *
+		FROM BOARDfile WHERE SEQ=#{seq}
+	</select>
+
+	<update id="addHit" parameterType="int">
+		UPDATE BOARD2 SET HIT=HIT+1
+		WHERE SEQ=#{seq}
+	</update>
+
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM BOARD2 WHERE
+		SEQ=#{seq} 
+	</delete>
+	
+	<delete id="fileDelete" parameterType="FileVO">
+		DELETE FROM boardfile WHERE
+		SEQ=#{seq} and savefilename = #{savefilename}
+		
+	</delete>
+
+	<select id="getMaxSeq" resultType="int">
+		select NVL(max(seq),0) maxnum
+		from board2
+	</select>
+
+	<update id="updateFilename" parameterType="BoardVO">
+		UPDATE BOARD2 SET
+		ORGFILENAME=#{orgfilename} WHERE SEQ=#{seq}
+	</update>
+
+	<update id="updateOk" parameterType="BoardVO">
+		UPDATE BOARD2 SET
+		title=#{title}, content=#{content}
+		WHERE
+		SEQ=#{seq}
+	</update>
+
+	<select id="getBoard" resultType="BoardVO">
+		select * from board2
+		order by seq desc
+	</select>
+</mapper>

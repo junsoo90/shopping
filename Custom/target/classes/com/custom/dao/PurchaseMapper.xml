@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="PurchaseDao">
+
+	<insert id="cartIn" parameterType="com.custom.VO.CartVO" >
+ 	     insert into cart values(
+ 	     	#{cartCnt},
+	    	#{userId}, 
+	    	#{pSeq}, 
+	    	#{pName}, 
+	    	#{filelocation}, 
+	    	#{pOption}, 
+	    	#{optionPrice}, 
+	    	#{cnt}, 
+	    	#{cartState}
+	   	)
+	</insert>
+	
+	<select id="getCart" resultType="CartVO">
+		select * from cart where userId = #{userId}
+	</select>
+	
+	<select id="getMaxCnt" resultType="int">
+		select NVL(max(cartCnt),0) maxnum
+		from cart
+	</select>
+	
+</mapper>
