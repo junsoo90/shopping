@@ -1,0 +1,94 @@
+@charset "UTF-8";
+
+.form-div{
+	margin-left: 20%;
+	margin-right: 20%;
+	margin-top: 10px;
+	float: left;
+}
+
+.checkbox-th{
+	width: 10%;
+}
+
+.product-th{
+	whidth: 40%;
+}
+
+.cnt-th, price-th, delivery-th{
+	whidth: 15%;
+}
+
+.product-info-div{
+	margin: 5%;
+}
+
+.product-image{
+	float:left;
+	width: 30%;
+}
+
+.product-select-option{
+	float:left;
+	width: 70%;
+}
+
+.product-checkbox-td, .product-info-td, .product-cnt, .product-option-price {
+	border-right: 1px solid #444444;
+}
+.table-nav-div{
+	background-color: #A4A4A4;
+}
+
+.product-info-tr{
+	border-top: 1px solid #444444;
+}
+
+.table-nav-div{
+	border-top: 1px solid #444444;
+}
+.product-info-tr{
+	border-bottom: 1px solid #444444;
+}
+
+.table-nav-tr{
+	background-color: #A4A4A4;
+}
+
+.cartdelete-btn-div{
+	margin-top: 10px;
+	float: left;
+	width: 100%;
+}
+
+.btn{
+	font-size: 15px;
+}
+
+.btn-bottom-div{
+	margin: auto;	
+	width: 100%;
+}
+
+.totalPrice{
+	margin: 5%;
+	float:left;	
+	width: 100%;
+}
+
+#totalPruce{
+	font-size: 15px;
+}
+
+#cartTable{
+	width: 100%;
+	float: left;
+	margin: auto;	
+	text-align: center;
+}
+
+
+tr, th, td{
+	border-bottom: 1px solid #444444;
+}
+

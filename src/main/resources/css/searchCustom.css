@@ -1,0 +1,32 @@
+@charset "UTF-8";
+
+.input_area{
+	font-size: 20px;
+}
+
+
+.btn{
+	margin: 10px;
+	float: left;
+}
+
+.main-div{
+	margin-left: 30%;
+	margin-right: 30%;
+	margin-top: 10%;
+	width: 100%;	
+	float: left;
+}
+
+.input_area, input{
+	font-size: 20px;
+}
+
+.input_area{
+	margin: 5px;
+}
+
+h1{
+	margin: 10px;
+	floar: left;
+}

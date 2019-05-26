@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="OrderDao">
+
+	<insert id="insertOrder" parameterType="map">
+		insert into orderList
+		values(
+		purchaseSeq.nextval,
+		sysdate,
+		#{cId},
+		#{pSeq},
+		#{pOption},
+		#{optionCnt},
+		#{optionPrice},
+		#{orderState},
+		#{payType},
+		#{pName},
+		#{cartCnt},
+		#{delRequestMsg},
+		0,
+		#{savefilename},
+		1
+		)
+
+	</insert>
+
+	<insert id="insertCard" parameterType="map">
+		insert into payCard
+		values(
+		#{cId},
+		#{pSeq},
+		#{pOption},
+		#{payName},
+		purchaseSeq.CURRVAL
+		)
+	</insert>
+
+	<insert id="insertBank" parameterType="map">
+		insert into payBank
+		values(
+		#{cId},
+		#{pSeq},
+		#{pOption},
+		#{payName},
+		#{bNo},
+		purchaseSeq.CURRVAL
+		)
+	</insert>
+
+	<select id="orderListInfo" parameterType="map" resultType="OrderVO">
+		select * from
+			( select A.*, rownum rnum from
+			(select * from orderList 
+				where cid=#{cId} 
+				and orderState 
+				<choose>
+					<when test="orderKeyWord == '' || orderKeyWord == null">
+						like '%'||#{orderKeyWord}||'%'
+					</when>
+					<otherwise>
+						= #{orderKeyWord}
+					</otherwise>
+				</choose>
+				
+				order by purchaseSeq desc)A
+			)
+			 
+			<![CDATA[
+				where RNUM >= #{start} AND RNUM <= #{end}
+			]]>
+	</select>
+
+	<update id="updateStateCheck">
+		update orderList 
+		set 
+		orderStateCheck = 1,
+		orderState = '배송완료(수취확인)'
+		where purchaseSeq = #{purchaseSeq}
+	</update>
+	
+	<update id="updateRefundReqeust">
+		update orderList set refund = 0
+		, orderState = '환불요청'
+		where purchaseSeq = #{purchaseSeq}
+	</update>
+
+
+	<update id="updateRefundCancel">
+		update orderList set refund = 1
+		, orderState = '환불요청취소'
+		where purchaseSeq = #{purchaseSeq}
+	</update>
+
+
+	<update id="stockDec" parameterType="map">
+		update productoption set optionStock = optionStock - #{optionCnt}
+		where pSeq = #{pSeq} and pOption = #{pOption}
+	</update>
+
+	<select id="orderCount" resultType="Integer" parameterType="map">
+		SELECT COUNT(*) FROM orderList	
+			 where cid=#{cId} and orderstate like '%'||#{orderKeyWord}||'%'
+	</select>
+
+</mapper>

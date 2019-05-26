@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CustomDao">
+	<select resultType="int" id="idCheck">
+		SELECT COUNT(*) FROM custom
+		WHERE cId = #{cId}
+	</select>
+
+	<select resultType="String" id="passCheck">
+		SELECT cPass FROM custom
+		WHERE cId = #{cId}
+	</select>
+
+	<select resultType="CustomVO" id="login">
+		select
+		cId,cPass,cName,cAddCode,cAdd,cAddDetail,cPhone1,cPhone2,cPhone3
+		from
+		custom
+		where cId = #{cId}
+	</select>
+
+	<insert id="customInsert" parameterType="CustomVO">
+		insert into custom
+		values(#{cId},#{cPass},#{cName},#{cAddCode},#{cAdd},#{cAddDetail},#{cPhone1},#{cPhone1},#{cPhone3},cSeq.nextval)
+	</insert>
+
+	<select resultType="CustomVO" id="idSearch"
+		parameterType="CustomVO">
+		select cId from custom
+		where
+		cName = #{cName} and
+		cPhone1
+		= #{cPhone1} and
+		cPhone2 = #{cPhone2} and
+		cPhone3 = #{cPhone3}
+	</select>
+
+	<select resultType="String" id="passSearch"
+		parameterType="CustomVO"> 
+		select cPass from custom
+			where
+				cId = #{cId} 
+				and cName = #{cName} 
+				and cPhone1 = #{cPhone1}
+				and cPhone2 = #{cPhone2} 
+				and cPhone3 = #{cPhone3}
+	</select>
+
+	<update id="loginSession">
+		update custom set sessionKey = #{loginSession}
+		where
+		cId = #{cId}
+	</update>
+
+	<select resultType="String" id="sessionCheck"
+		parameterType="String">
+		select sessionKey from custom where cId=#{cId}
+	</select>
+
+	<update id="customUpdate" parameterType="map">
+		update custom
+		set
+		cPass = #{cChangePass},
+		cName = #{cName},
+		cAdd = #{cAdd},
+		cAddCode = #{cAddCode},
+		cAddDetail = #{cAddDetail},
+		cPhone1 = #{cPhone1},
+		cPhone2 = #{cPhone2},
+		cPhone3 = #{cPhone3}
+		where cId = #{cId}
+	</update>
+
+	<delete id="customDelete" parameterType="String">
+		delete from custom 
+		where
+		cId=#{cId}
+	</delete>
+
+</mapper>

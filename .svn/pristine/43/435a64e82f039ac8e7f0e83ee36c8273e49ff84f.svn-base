@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="ProductDao">
+
+
+	<!-- 중복처리 -> rowid // group by -->
+	<select id="productList" parameterType="map" resultType="ProductVO" >
+		SELECT * FROM
+		(SELECT A.*, B.filelocation,B.savefilename, ROWNUM RNUM FROM
+		(SELECT * from productInfo
+			WHERE productInfo.pName like '%'||#{keyWord}||'%'
+			)A,
+			(SELECT * from pPhoto 
+                where rowid in (select min(rowid) from pPhoto group by pseq) order by pseq desc
+			)B 
+			where A.pseq = B.pseq)
+				
+		<![CDATA[
+		 where RNUM >= #{start} AND RNUM <= #{end}
+		 ]]>
+	</select>
+	
+
+	<select id="productCount" parameterType="map" resultType="Integer">
+		SELECT count(*) FROM
+		(SELECT A.*, B.filelocation,B.savefilename, ROWNUM RNUM FROM
+		(SELECT * from productInfo
+			WHERE productInfo.pName like '%'||#{keyWord}||'%'
+			)A,
+			(SELECT * from pPhoto 
+                where rowid in (select max(rowid) from pPhoto group by pseq) order by pseq desc
+			)B 
+			where A.pseq = B.pseq)
+				
+	<!-- 
+		SELECT Count(*) FROM
+			(SELECT A.*, B.filelocation,B.savefilename, ROWNUM RNUM FROM
+			(SELECT * from productInfo
+				WHERE productInfo.pName like '%'||#{keyWord}||'%'
+					order by pseq desc)A,
+					
+			(select * from pPhoto)B 
+				where A.pseq = B.pseq)
+	-->
+	
+	</select>
+	
+	<select id="pPhotoCount" parameterType="map" resultType="Integer">
+		 SELECT COUNT(*)   
+         FROM productInfo
+         WHERE pSeq  IN (
+              SELECT seq FROM pPhoto
+              WHERE orgfilename LIKE '%${keyWord}%')
+			
+	</select>
+
+	<insert id="productInsert" parameterType="ProductVO" >
+
+		INSERT INTO productInfo
+		VALUES(pSeq.nextval,#{pName},#{pPrice},#{pStock},#{pDetail},
+		0, #{deliveryCharge})
+
+	</insert>
+	
+	<insert id="optionInsert" parameterType="OptionVO" >
+		INSERT INTO productOption
+		VALUES(#{pSeq},#{pOption})
+	</insert>
+	
+	
+	
+	<insert id="fileInsert" parameterType="com.custom.VO.PhotoVO">
+		insert into pPhoto
+		values( #{seq}, #{orgfilename}, #{savefilename}, #{filelocation})
+	</insert>
+
+
+	<update id="stepUp" parameterType="ProductVO">
+		UPDATE productInfo SET STEP=STEP+1 
+		WHERE REF=#{ref} and STEP <![CDATA[>]]>
+		#{step}
+	</update>
+
+	<select id="getInfo" parameterType="int" resultType="ProductVO">
+		select A.savefilename, B.*, rownum rnum from 
+          (select * from productinfo)B,
+          (select * from pPhoto)A
+          where A.pseq = #{pSeq} 
+          and A.pseq = B.pseq 
+          and rownum=1 
+          order by B.pseq desc
+	</select>
+	
+	<select id="optionInfo" parameterType="int" resultType="OptionVO" >
+		SELECT *
+		FROM productOption WHERE pSeq=#{seq}
+		order by  optioncnt asc
+	</select>	
+	
+	<select id="photogetInfo" parameterType="int" resultType="com.custom.VO.PhotoVO">
+		SELECT *
+		FROM pPhoto WHERE pSeq=#{pSeq}
+	</select>
+
+	<update id="addHit" parameterType="int">
+		UPDATE productInfo SET HIT=HIT+1
+		WHERE pSeq=#{seq}
+	</update>
+
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM productInfo WHERE
+		pSeq=#{seq} 
+	</delete>
+	
+	<delete id="fileDelete" parameterType="com.custom.VO.PhotoVO">
+		DELETE FROM pPhoto WHERE
+		SEQ=#{seq} and savefilename = #{savefilename}
+		
+	</delete>
+
+	<select id="getMaxSeq" resultType="int">
+		select NVL(max(pSeq),0) maxnum
+		from productInfo
+	</select>
+
+
+	<update id="updateOk" parameterType="ProductVO">
+		UPDATE productInfo SET
+		title=#{title}, content=#{content}
+		WHERE
+		pSeq=#{seq}
+	</update>
+
+	<select id="getBoard" resultType="ProductVO">
+		select * from productInfo
+		order by pSeq desc
+	</select>
+
+	<select id="checkStock" resultType="int" parameterType="map">
+		select productoption.optionStock 
+			from 
+			productInfo, productOption
+			where productinfo.pseq=#{pSeq} 
+			and  productinfo.pseq= productoption.pseq 
+			and productoption.pOption = #{pOption}
+	</select>
+	
+	<select id="getOptionStock" resultType="int" parameterType="CartVO">
+		
+		select optionStock from productoption 
+			where pSeq = #{pSeq} and pOption = #{pOption}
+
+	</select>
+	
+	
+
+</mapper>

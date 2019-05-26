@@ -1,0 +1,265 @@
+package com.custom.Controller;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.custom.VO.CustomVO;
+import com.custom.VO.OrderVO;
+import com.custom.VO.ProductVO;
+import com.custom.dao.OrderDao;
+import com.custom.dao.ProductDao;
+import com.custom.dao.PurchaseDao;
+import com.custom.paging.Paging;
+
+@Controller
+public class OrderController {
+	
+	@Autowired
+	OrderDao orderDao;
+	
+	@Autowired
+	ProductDao productDao;
+	
+	@Autowired
+	PurchaseDao purchaseDao;
+
+	private int pageSize = 10;
+	private int blockCount = 10;
+	
+
+	@RequestMapping(value = "/orderPay.do")
+	public ModelAndView orderPay(ModelAndView mav, 
+			HttpServletRequest request, HttpSession session,
+			HttpServletResponse response) throws UnsupportedEncodingException {
+		System.out.println("order");
+		
+		request.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+
+		
+		try {
+		
+			List<Map<String,Object>> purchaseList =  (List<Map<String, Object>>) session.getAttribute("purchaseList");
+			// 援щℓ 由ъ뒪�듃
+			System.out.println("purchaseList = " + purchaseList.size());
+			
+			CustomVO customVo = (CustomVO) session.getAttribute("custom");
+			// �쑀�� �젙蹂�
+			System.out.println("cartList = " + session.getAttribute("cartList"));
+			
+			System.out.println("customVO = " + customVo);
+			
+			
+			String cId = customVo.getcId(); // �쑀�� �븘�씠�뵒
+			String orderState = "배송준비중"; // �긽�깭
+			
+			
+			String reqeustSelectBox = request.getParameter("reqeustSelectBox");
+			String delRequestMsg = request.getParameter("delRequestMsg");
+			System.out.println(delRequestMsg);
+			
+			delRequestMsg = new String(delRequestMsg.getBytes("8859_1"), "utf-8");
+
+			System.out.println(delRequestMsg);
+			// 諛곗넚�떆 �슂泥��궗�빆
+			
+			String payType = request.getParameter("payType"); // 寃곗젣諛⑹떇
+			String payName; // 移대뱶 or ���뻾 �씠由�
+			
+			int bNo = 0; // ���뻾 �꽑�깮 �떆 怨꾩쥖踰덊샇
+			
+			if(payType.equals("bank")) {
+				bNo = Integer.parseInt(request.getParameter("bankNum"));
+				payName = request.getParameter("payTypeBankSelectBox");
+			}
+			else
+				payName = request.getParameter("payTypeCardSelectBox");
+			
+			
+			// 二쇰Ц�궡�뿭
+			for(int i=0; i<purchaseList.size(); i++){
+			
+				// 移대뱶�씤吏� �븘�땶吏�
+				if(purchaseList.get(i).get("cartCnt") == null)
+					purchaseList.get(i).put("cartCnt", 0);
+				
+				
+				purchaseList.get(i).put("cId", cId);
+				purchaseList.get(i).put("orderState", orderState);
+				purchaseList.get(i).put("delRequestMsg", delRequestMsg);
+				purchaseList.get(i).put("payName", payName);
+				purchaseList.get(i).put("payType", payType);
+				
+				// 二쇰Ц�궡�뿭 異붽�
+				orderDao.insertOrder(purchaseList.get(i));
+				
+				// 移대뱶 / ���뻾
+				if(bNo != 0) {
+					purchaseList.get(i).put("bNo", bNo);
+					orderDao.insertBank(purchaseList.get(i));
+				}
+				else
+					orderDao.insertCard(purchaseList.get(i));
+				
+				
+				// �옣諛붽뎄�땲�뿉�꽌 二쇰Ц�궡�뿭 �궘�젣
+				if(session.getAttribute("cartPurchaseList") != null) {
+					System.out.println(purchaseList.get(i).get("cartCnt"));
+					System.out.println(cId);
+					System.out.println(purchaseList.get(i).get("cId"));
+					
+					purchaseDao.cartDelete(purchaseList.get(i));
+				}
+				
+				
+				// 二쇰Ц �닔�웾留뚰겮 �옱怨� 媛먯냼
+				orderDao.stockDec(purchaseList.get(i));
+				
+			}
+			if(session.getAttribute("cartPurchaseList") != null)
+				session.removeAttribute("cartPurchaseList");
+			
+			System.out.println(request.getParameter("reqeustSelectBox"));
+	
+			System.out.println(request.getParameter("payType"));
+			System.out.println( request.getParameter("delRequestMsg") );
+					
+			System.out.println(request.getParameter("bankNum"));
+			
+			session.removeAttribute("cartList");
+			session.removeAttribute("purchaseList");
+			mav.setViewName("orderResult");
+		}catch(Exception e) {
+			e.printStackTrace();
+			mav.setViewName("login");
+		}
+		return mav;
+	}
+
+	
+	// 주문내역
+	@RequestMapping(value = "/orderList.do")
+	public ModelAndView orderList(@RequestBody String purchase,
+			@RequestParam(value = "pageNum", defaultValue = "1") int currentPage,
+			@RequestParam(value = "keyField", defaultValue = "") String keyField,
+			@RequestParam(value = "orderKeyWord", defaultValue = "") String orderKeyWord,
+			ModelAndView mav, HttpServletRequest request, HttpSession session) {
+		
+		CustomVO customVo = (CustomVO) session.getAttribute("custom");
+		try {
+			String cId = customVo.getcId();
+			
+			String pagingHtml = "";
+			HashMap<String, Object> map = new HashMap();
+			
+			//orderKeyWord = URLDecoder.decode(orderKeyWord,"UTF-8");
+			
+			map.put("orderKeyWord", URLDecoder.decode(orderKeyWord,"UTF-8"));
+			map.put("cId", cId);
+			
+			System.out.println("orderKeyWord = " + orderKeyWord);
+			System.out.println("orderKeyWord = " + URLEncoder.encode(orderKeyWord,"UTF-8"));
+			System.out.println("orderKeyWord = " + URLDecoder.decode(orderKeyWord,"UTF-8"));
+			
+			int count = orderDao.orderCount(map);
+	
+			Paging page = new Paging(keyField, URLDecoder.decode(orderKeyWord,"UTF-8"), currentPage, count, 
+							this.pageSize, this.blockCount, "orderList.do");
+	
+			pagingHtml = page.getPagingHtml().toString();
+	
+			map.put("start", Integer.valueOf(page.getStartCount()));
+			map.put("end", Integer.valueOf(page.getEndCount()));
+	
+			int number = count - (currentPage - 1) * this.pageSize;
+			int endPage = (count / pageSize) + ((count % pageSize == 0) ? 0 : 1);
+	
+			
+			List<OrderVO> orderList = orderDao.orderListInfo(map);
+			
+			
+			for(int i=0; i<orderList.size(); i++) {
+				System.out.println(orderList.get(i).getOrderDate());
+			}
+			
+			mav.addObject("count", Integer.valueOf(count));
+			mav.addObject("currentPage", Integer.valueOf(currentPage));
+			mav.addObject("pagingHtml", pagingHtml);
+			mav.addObject("number", Integer.valueOf(number));
+			mav.addObject("endPage", endPage);
+			mav.addObject("keyField",keyField);
+			
+			mav.addObject("orderKeyWord", URLEncoder.encode(orderKeyWord,"UTF-8"));
+			
+			mav.addObject("orderList", orderList);
+			
+			mav.setViewName("orderList");
+		}
+		catch(Exception e) {
+			e.fillInStackTrace();
+			mav.setViewName("login");
+		}
+		return mav;
+	}
+	
+	// 환불요청
+	@RequestMapping(value = "/refundReqeust.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String refundReqeust(@RequestBody int purchaseSeq,
+			ModelAndView mav,
+			HttpServletRequest request, HttpSession session, HttpServletResponse response) throws UnsupportedEncodingException {
+		
+		System.out.println(purchaseSeq);
+		orderDao.updateRefundReqeust(purchaseSeq);
+		
+		return "true";
+	}
+	
+	// 환불취소
+	@RequestMapping(value = "/refundCancel.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String refundCalcel(@RequestBody int purchaseSeq,
+			ModelAndView mav,
+			HttpServletRequest request, HttpSession session, HttpServletResponse response) throws UnsupportedEncodingException {
+		
+		System.out.println(purchaseSeq);
+		orderDao.updateRefundCancel(purchaseSeq);
+		
+		return "true";
+	}
+	
+	
+	// 수취확인
+	@RequestMapping(value = "/deliveryConfirm.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String deliveryConfirm(@RequestBody int purchaseSeq,
+			ModelAndView mav,
+			HttpServletRequest request, HttpSession session, HttpServletResponse response) throws UnsupportedEncodingException {
+		
+		System.out.println(purchaseSeq);
+		orderDao.updateStateCheck(purchaseSeq);
+		
+		return "true";
+	}
+	
+	
+
+	
+}

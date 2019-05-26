@@ -1,0 +1,120 @@
+@charset "UTF-8";
+
+.form-div{
+	margin-left: 10%;
+	margin-right: 10%;
+}
+
+.product-option{
+	width: 100%;
+	float: left;
+}
+
+.sub-image-div{
+	float: left;
+	margin: 10%;
+}
+.sub-image{
+	width: 70px;
+	height: 70px;
+}
+
+.image-div, product-option-div{
+	
+}
+
+.image-div{
+	float: left;
+	width: 50%
+}
+
+.product-option-div{
+	float: left;
+	width: 50%;
+}
+
+.pName-divm .pPrice-div{
+	width: 100%;
+	float: left;
+}
+
+.pName-div{
+	font-size: 80px;
+	float:left;
+	width: 100%;
+}
+
+.pOption-div{
+	float: left;
+	width: 100%;
+	font-size: 30px;
+}
+
+.selectBox{
+	width: 100%;
+	margin: 10px;
+	float: left;
+	font-size: 20px;
+}
+
+.sale_price { 
+	font-size: 50px;
+	margin: 5px;
+	width: 100%;
+	float: left;
+}
+
+.selsetLit-div{
+	width: 100%;
+	float: left;
+	font-size: 20px;
+} 
+
+.product-detail-div{
+	width: 100%;
+}
+
+.product-detail{
+	font-size: 20px;
+	width: 100%;
+}
+
+
+.price-div{
+	font-size: 30px;
+}
+
+.btn-div{
+	font-size: 40px;
+}
+
+.btn-div-option{
+	font-size: 15px;
+	margin: 10px;
+	float:left;
+}
+
+.price{
+	font-size: 20px;
+}
+
+.option{
+	font-size: 20px;	
+}
+
+#selectList ul{
+	list-style-type:none;
+	float: left;
+	background-color: #D8D8D8;
+	width: 100%;
+}
+
+#selectList ul li{
+	border-bottom: 2px solid #A4A4A4;
+	padding: 5px;
+  	margin: 5px;
+}
+
+#ulSelectList{
+	margin-bottom: 5px;
+}

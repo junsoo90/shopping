@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+.form-div{
+	float:left;
+	margin-left: 20%;
+	margin-right: 20%;
+	margin-top: 20px;
+	width: 50%;
+}
+
+.insert-div{
+	margin: 5%;
+	float:left;
+}
+
+
+span, .form-group{
+	margin-right: 15px;
+	float:left;
+}
+
+.span-div{
+	width:20%;
+}
+.form-group{
+	width:50%;
+}
+.insert-data{
+	float:left;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.btn-div{
+	margin-left: 10%;
+	float:left;
+}

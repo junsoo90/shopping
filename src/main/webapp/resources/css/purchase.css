@@ -1,0 +1,140 @@
+@charset "UTF-8";
+
+
+.form-div{
+	margin-left: 20%;
+	margin-right: 20%;
+	margin-top: 10px;
+	margin-bottom: 10%;
+	float: left;
+}
+
+.product-th{
+	whidth: 40%;
+}
+
+.cnt-th, price-th, delivery-th{
+	whidth: 15%;
+}
+
+.product-info-div{
+	margin: 5%;
+}
+
+.product-image{
+	float:left;
+	width: 30%;
+}
+
+.product-select-option{
+	float:left;
+	width: 70%;
+}
+
+
+.product-checkbox-td, .product-info-td, .product-cnt, .product-option-price {
+	border-right: 1px solid #444444;
+}
+.table-nav-div{
+	background-color: #A4A4A4;
+}
+
+.product-info-tr{
+	border-top: 1px solid #444444;
+}
+
+.table-nav-div{
+	border-top: 1px solid #444444;
+}
+.product-info-tr{
+	border-bottom: 1px solid #444444;
+}
+
+.table-nav-tr{
+	background-color: #A4A4A4;
+}
+
+
+.orderPrice-div{
+	float: left;
+	width: 100%;
+	margin-top: 5%;
+	background-color: #F7F8E0;
+	padding: 5%;
+	font-size: 30px;
+}
+
+.orderPrice-div span{
+	font-size: 30px;
+}
+
+.orderPrice-price-div, .orderPrice-price-operation-div, .delivert-info-div, #payTypeContent{
+	float:left;
+	
+}
+
+.text-orderPrice{
+	font-size:15px;
+}
+
+.delivert-info-div{
+	width: 100%	
+}
+
+.order-pay-div, .delivery-main-div, .orderDelivery-div{
+	width: 100%;
+	float: left;
+	margin-top: 5%;
+}
+
+.btn-bottom-div{
+	margin-top: 5%;
+	margin-bottom: 5%;
+	width: 100%;
+	float: left;
+}
+
+
+
+#purchaseTable{
+	width: 100%;
+	float: left;
+	margin: auto;	
+	text-align: center;
+	
+}
+
+
+#payTypeList ul li{
+	list-style: none;
+}
+
+
+
+#delivert-info-table tr, #delivert-info-table td{
+	padding: 10px;
+}
+
+#purchaseTable tr, #purchaseTable th, #purchaseTable td{
+	border-bottom: 1px solid #444444;
+}
+
+#delivery-info-table, #order-pay-table{
+	width: 100%;
+	float: left;
+	margin: auto;	
+	text-align: left;
+	border: 1px solid #444444;
+	table-layout: fixed;
+}
+
+.table-td-1{
+	width: 20%;	
+}
+
+.table-td-2{
+	width: 80%;	
+}
+p{
+	font-size: 30px;
+}
